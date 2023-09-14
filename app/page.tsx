@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArchiveBoxIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/20/solid";
 // let i = 0;
 
 export default function Email() {
   let [id, setId] = useState(0);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+  ]);
   const [selectedMessages, setSelectedMessages] = useState([]);
-  console.log({ id });
 
   function addMessage() {
     setMessages((messages) => [id, ...messages]);
@@ -31,30 +33,32 @@ export default function Email() {
     setSelectedMessages([]);
   }
 
+  console.log({ messages, selectedMessages });
+
   return (
-    <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-slate-600">
-      <div className="flex h-full w-full max-w-md flex-1 flex-col rounded-2xl bg-white py-2">
-        <div className="border-b px-5">
+    <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-gray-200">
+      <div className="flex h-full w-full max-w-md flex-1 flex-col bg-gray-600 py-2 shadow-xl">
+        <div className="border-b border-gray-500/40 px-5">
           <div className="flex justify-between py-2 text-right">
             <button
               onClick={addMessage}
-              className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-slate-400 hover:text-slate-500 active:bg-slate-100"
+              className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-400 hover:text-gray-300 active:text-gray-200"
             >
-              <EnvelopeIcon className="h-5 w-5 " />
-              Refresh
+              <PlusIcon className="h-6 w-6" />
             </button>
             <button
               onClick={archiveSelectedMessages}
-              className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-slate-400 hover:text-slate-500 active:bg-slate-100"
+              className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-400 hover:text-gray-300 active:text-gray-200"
             >
               <ArchiveBoxIcon className="h-5 w-5" />
               Archive
             </button>
           </div>
         </div>
-        <ul className="overflow-y-scroll px-3 pt-3">
+
+        <ul className="relative z-20 m-3 divide-y divide-white/10 overflow-y-scroll ">
           <AnimatePresence initial={false}>
-            {messages.map((mid) => (
+            {messages.map((mid, index) => (
               <motion.li
                 // initial={{ opacity: 1, height: 0, y: "-100%" }}
                 // animate={{ opacity: 1, height: "auto", y: "0%" }}
@@ -63,41 +67,70 @@ export default function Email() {
                 initial={{ height: 0 }}
                 animate={{ height: "auto" }}
                 exit={{
-                  opacity: 0.5,
+                  // opacity: 0.5,
+                  // marginTop: -1,
+                  // borderColor: "transparent",
                   height: 0,
-                  overflow: "hidden",
+                  zIndex: groupSelectedMessages(messages, selectedMessages)
+                    .reverse()
+                    .findIndex((group) => group.includes(mid)),
+                  // zIndex: messageGroups.findIndex(group => group.includes(10))
+                  // overflow: "hidden",
                   // justifyContent: "center",
+                  // zIndex:
+                  //   selectedMessages.length -
+                  //   messages
+                  //     .filter((x) => selectedMessages.includes(x))
+                  //     .indexOf(mid),
                 }}
+                // style={{
+                //   zIndex: selectedMessages.includes(mid)
+                //     ? selectedMessages.length - selectedMessages.indexOf(mid)
+                //     : selectedMessages.length + 1,
+                // }}
                 // transition={{ opacity: { duration: 0.2 } }}
                 // transition={{ duration: 3 }}
-                transition={{ ease: [0.32, 0.72, 0, 1] }}
-                // transition={{ ease: [0.32, 0.72, 0, 1], duration: 5 }}
+                // transition={{ ease: [0.32, 0.72, 0, 1] }}
+                transition={{ ease: [0.32, 0.72, 0, 1], duration: 50 }}
                 // transition={{ type: "tween" }}
+                // transition={{ type: "spring", bounce: 0 }}
                 key={mid}
                 data-id={mid}
-                className={`relative flex flex-col justify-end`}
+                className={`relative z-10 z-[1000] flex flex-col justify-end bg-gray-600`}
               >
-                <div className="my-4">
+                <motion.div
+                  exit={{
+                    y: `-${
+                      100 *
+                      getConsecutiveSelectedMessages(
+                        messages,
+                        selectedMessages,
+                        mid,
+                      )
+                    }%`,
+                  }}
+                  transition={{ ease: [0.32, 0.72, 0, 1], duration: 50 }}
+                >
                   <button
                     onClick={() => toggleMessage(mid)}
                     className={`${
                       selectedMessages.includes(mid)
                         ? "bg-blue-500"
-                        : "hover:bg-slate-200"
+                        : "hover:bg-gray-500/50"
                     }
-                    block w-full cursor-pointer truncate rounded px-3 py-3 text-left`}
+                    block w-full cursor-pointer truncate rounded px-8 py-4 text-left`}
                   >
                     <p
                       className={`${
                         selectedMessages.includes(mid)
                           ? "text-white"
-                          : "text-slate-500"
-                      } truncate text-sm font-medium`}
+                          : "text-white"
+                      } truncate text-xs text-gray-100`}
                     >
-                      Email {mid}
+                      Todo {mid}
                     </p>
                   </button>
-                </div>
+                </motion.div>
               </motion.li>
             ))}
           </AnimatePresence>
@@ -106,3 +139,90 @@ export default function Email() {
     </div>
   );
 }
+
+function getConsecutiveSelectedMessages(messages, selectedMessages, id) {
+  const startIndex = messages.indexOf(id);
+
+  if (startIndex === -1 || !selectedMessages.includes(id)) {
+    return 0;
+  }
+
+  let consecutiveCount = 0;
+
+  for (let i = startIndex + 1; i < messages.length; i++) {
+    if (selectedMessages.includes(messages[i])) {
+      consecutiveCount++;
+    } else {
+      break;
+    }
+  }
+
+  return consecutiveCount;
+}
+
+function groupSelectedMessages(messages, selectedMessages) {
+  const messageGroups = [];
+  let currentGroup = [];
+
+  for (let i = 0; i < messages.length; i++) {
+    const messageId = messages[i];
+
+    if (selectedMessages.includes(messageId)) {
+      currentGroup.push(messageId);
+    } else if (currentGroup.length > 0) {
+      // If we encounter a non-selected message and there is an active group,
+      // push the current group to the result and reset it.
+      messageGroups.push(currentGroup);
+      currentGroup = [];
+    }
+  }
+
+  // Check if there's a group remaining after the loop.
+  if (currentGroup.length > 0) {
+    messageGroups.push(currentGroup);
+  }
+
+  return messageGroups;
+}
+
+// function getConsecutiveSelectedMessages(messages, selectedMessages, id) {
+//   const startIndex = messages.indexOf(id);
+
+//   if (startIndex === -1 || !selectedMessages.includes(id)) {
+//     return 0;
+//   }
+
+//   const consecutiveMessages = messages
+//     .slice(startIndex + 1) // Start from the next message after the passed-in ID
+//     .filter((messageID) => selectedMessages.includes(messageID));
+
+//   if (consecutiveMessages.length === 0) {
+//     return 0;
+//   }
+
+//   let consecutiveCount = 0;
+//   for (let i = 0; i < consecutiveMessages.length; i++) {
+//     if (consecutiveMessages[i] === selectedMessages[consecutiveCount]) {
+//       consecutiveCount++;
+//     } else {
+//       break;
+//     }
+//   }
+
+//   return consecutiveCount;
+// }
+
+// Now using this test data:
+
+// ```
+// let messages = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+// let selectedMessages = [3, 4, 5, 6, 11]
+// ```
+
+// you can see that
+
+// ```
+// getConsecutiveSelectedMessages(messages, selectedMessages, 6)
+// ```
+
+// returns 0, when it should return 3, since the IDs 5, 4 and 3 follow 6 in the original array, and they're all in selectedMessages
