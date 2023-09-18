@@ -36,7 +36,7 @@ export default function Email() {
 
   return (
     <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-gray-200">
-      <div className="relative flex h-full w-full max-w-md flex-1 flex-col rounded border border-white/10 bg-gray-600 shadow-xl">
+      <div className="relative flex h-full w-full max-w-md flex-1 flex-col rounded border border-gray-500 bg-gray-600 shadow-xl">
         <div className="border-b border-gray-500/80 px-5">
           <div className="flex justify-between py-2 text-right">
             <button
@@ -75,10 +75,7 @@ export default function Email() {
                         mid,
                       ),
                   }}
-                  transition={{
-                    ease: [0.32, 0.72, 0, 1],
-                    // duration: 10,
-                  }}
+                  transition={{ ease: [0.32, 0.72, 0, 1] }}
                   key={mid}
                   className="relative z-[1000] flex flex-col justify-end bg-gray-600"
                 >
@@ -109,6 +106,7 @@ export default function Email() {
                           : ""
                       }
                       block w-full cursor-pointer truncate border-b-[1px] px-8 py-4 text-left`}
+                      style={{ WebkitTapHighlightColor: "transparent" }}
                     >
                       <p
                         className={`${
@@ -205,48 +203,6 @@ function groupSelectedMessages(messages: number[], selectedMessages: number[]) {
 
   return messageGroups;
 }
-
-// function getConsecutiveSelectedMessages(messages, selectedMessages, id) {
-//   const startIndex = messages.indexOf(id);
-
-//   if (startIndex === -1 || !selectedMessages.includes(id)) {
-//     return 0;
-//   }
-
-//   const consecutiveMessages = messages
-//     .slice(startIndex + 1) // Start from the next message after the passed-in ID
-//     .filter((messageID) => selectedMessages.includes(messageID));
-
-//   if (consecutiveMessages.length === 0) {
-//     return 0;
-//   }
-
-//   let consecutiveCount = 0;
-//   for (let i = 0; i < consecutiveMessages.length; i++) {
-//     if (consecutiveMessages[i] === selectedMessages[consecutiveCount]) {
-//       consecutiveCount++;
-//     } else {
-//       break;
-//     }
-//   }
-
-//   return consecutiveCount;
-// }
-
-// Now using this test data:
-
-// ```
-// let messages = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-// let selectedMessages = [3, 4, 5, 6, 11]
-// ```
-
-// you can see that
-
-// ```
-// getConsecutiveSelectedMessages(messages, selectedMessages, 6)
-// ```
-
-// returns 0, when it should return 3, since the IDs 5, 4 and 3 follow 6 in the original array, and they're all in selectedMessages
 
 function range(number: number) {
   return Array.apply(null, Array(number)).map(function (_, i) {
