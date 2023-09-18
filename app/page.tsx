@@ -1,24 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, Transition, motion } from "framer-motion";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
-// let i = 0;
+
+let a = [...Array(20).keys()].reverse();
+let b = [...Array(19).keys()].reverse();
+
+const transition: Transition = {
+  eease: "linear",
+  // duration: 0.2,
+  ease: [0.32, 0.72, 0, 1],
+};
 
 export default function Email() {
-  let [id, setId] = useState(0);
-  const [messages, setMessages] = useState([
-    20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
-  ]);
-  const [selectedMessages, setSelectedMessages] = useState([]);
+  let [id, setId] = useState(a.length);
+  const [messages, setMessages] = useState(a);
+  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
 
   function addMessage() {
     setMessages((messages) => [id, ...messages]);
     setId((id) => id + 1);
   }
 
-  function toggleMessage(mid) {
+  function toggleMessage(mid: number) {
     if (selectedMessages.includes(mid)) {
       setSelectedMessages((messages) => messages.filter((id) => id !== mid));
     } else {
@@ -33,7 +39,7 @@ export default function Email() {
     setSelectedMessages([]);
   }
 
-  console.log({ messages, selectedMessages });
+  // console.log(messages, id);
 
   return (
     <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-gray-200">
@@ -56,69 +62,91 @@ export default function Email() {
           </div>
         </div>
 
-        <ul className="relative z-20 m-3 divide-y divide-white/10 overflow-y-scroll ">
+        <ul className="relative z-20 m-3 overflow-y-scroll">
           <AnimatePresence initial={false}>
-            {messages.map((mid, index) => (
+            {messages.map((mid) => (
               <motion.li
-                // initial={{ opacity: 1, height: 0, y: "-100%" }}
-                // animate={{ opacity: 1, height: "auto", y: "0%" }}
-                // initial={{ opacity: 1, height: 0, y: -48 }}
-                // animate={{ opacity: 1, height: "auto", y: 0 }}
                 initial={{ height: 0 }}
-                animate={{ height: "auto" }}
+                animate={{ height: "auto", y: 0 }}
                 exit={{
-                  // opacity: 0.5,
-                  // marginTop: -1,
-                  // borderColor: "transparent",
                   height: 0,
                   zIndex: groupSelectedMessages(messages, selectedMessages)
                     .reverse()
                     .findIndex((group) => group.includes(mid)),
-                  // zIndex: messageGroups.findIndex(group => group.includes(10))
-                  // overflow: "hidden",
-                  // justifyContent: "center",
-                  // zIndex:
-                  //   selectedMessages.length -
-                  //   messages
-                  //     .filter((x) => selectedMessages.includes(x))
-                  //     .indexOf(mid),
+
+                  y:
+                    -48 *
+                    getNumberOfSelectedMessagesAfter(
+                      messages,
+                      selectedMessages,
+                      mid,
+                    ),
                 }}
-                // style={{
-                //   zIndex: selectedMessages.includes(mid)
-                //     ? selectedMessages.length - selectedMessages.indexOf(mid)
-                //     : selectedMessages.length + 1,
-                // }}
-                // transition={{ opacity: { duration: 0.2 } }}
-                // transition={{ duration: 3 }}
-                // transition={{ ease: [0.32, 0.72, 0, 1] }}
-                transition={{ ease: [0.32, 0.72, 0, 1], duration: 50 }}
-                // transition={{ type: "tween" }}
-                // transition={{ type: "spring", bounce: 0 }}
+                transition={transition}
                 key={mid}
                 data-id={mid}
-                className={`relative z-10 z-[1000] flex flex-col justify-end bg-gray-600`}
+                data-selected={selectedMessages.includes(mid) || null}
+                className={`oopacity-75 relative z-[1000] flex flex-col justify-end bg-gray-600`}
               >
                 <motion.div
-                  exit={{
-                    y: `-${
-                      100 *
-                      getConsecutiveSelectedMessages(
-                        messages,
-                        selectedMessages,
-                        mid,
-                      )
-                    }%`,
-                  }}
-                  transition={{ ease: [0.32, 0.72, 0, 1], duration: 50 }}
+                  // exit={{
+                  //   y: `-${
+                  //     100 *
+                  //     getNumberOfSelectedMessagesAfter(
+                  //       messages,
+                  //       selectedMessages,
+                  //       mid,
+                  //     )
+                  //   }%`,
+                  // }}
+                  transition={transition}
                 >
-                  <button
+                  <motion.button
+                    transition={transition}
+                    exit={
+                      {
+                        // y:
+                        //   -48 *
+                        //   getNumberOfSelectedMessagesAfter(
+                        //     messages,
+                        //     selectedMessages,
+                        //     mid,
+                        //   ),
+                        // y: `-${
+                        //   100 *
+                        //   getNumberOfSelectedMessagesAfter(
+                        //     messages,
+                        //     selectedMessages,
+                        //     mid,
+                        //   )
+                        // }%`,
+                      }
+                    }
                     onClick={() => toggleMessage(mid)}
                     className={`${
                       selectedMessages.includes(mid)
                         ? "bg-blue-500"
                         : "hover:bg-gray-500/50"
                     }
-                    block w-full cursor-pointer truncate rounded px-8 py-4 text-left`}
+                    ${
+                      getNumberOfSelectedMessagesAfter(
+                        messages,
+                        selectedMessages,
+                        mid,
+                      ) === 0
+                        ? "rounded-b border-transparent"
+                        : "border-white/10"
+                    }
+                    ${
+                      getNumberOfSelectedMessagesBefore(
+                        messages,
+                        selectedMessages,
+                        mid,
+                      ) === 0
+                        ? "rounded-t"
+                        : ""
+                    }
+                    block w-full cursor-pointer truncate border-b-[1px] px-8 py-4 text-left`}
                   >
                     <p
                       className={`${
@@ -129,7 +157,7 @@ export default function Email() {
                     >
                       Todo {mid}
                     </p>
-                  </button>
+                  </motion.button>
                 </motion.div>
               </motion.li>
             ))}
@@ -140,7 +168,7 @@ export default function Email() {
   );
 }
 
-function getConsecutiveSelectedMessages(messages, selectedMessages, id) {
+function getNumberOfSelectedMessagesAfter(messages, selectedMessages, id) {
   const startIndex = messages.indexOf(id);
 
   if (startIndex === -1 || !selectedMessages.includes(id)) {
@@ -150,6 +178,26 @@ function getConsecutiveSelectedMessages(messages, selectedMessages, id) {
   let consecutiveCount = 0;
 
   for (let i = startIndex + 1; i < messages.length; i++) {
+    if (selectedMessages.includes(messages[i])) {
+      consecutiveCount++;
+    } else {
+      break;
+    }
+  }
+
+  return consecutiveCount;
+}
+
+function getNumberOfSelectedMessagesBefore(messages, selectedMessages, id) {
+  const endIndex = messages.indexOf(id);
+
+  if (endIndex === -1 || !selectedMessages.includes(id)) {
+    return 0;
+  }
+
+  let consecutiveCount = 0;
+
+  for (let i = endIndex - 1; i >= 0; i--) {
     if (selectedMessages.includes(messages[i])) {
       consecutiveCount++;
     } else {
