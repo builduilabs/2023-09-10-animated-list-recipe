@@ -5,22 +5,24 @@ import { AnimatePresence, Transition, motion } from "framer-motion";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 
-let a = range(5).reverse();
-let b = range(14).reverse();
+let a = range(15).reverse();
+let b = range(5).reverse();
 
 const transition: Transition = {
   // type: "spring",
   // bounce: 0.75,
-  // duration: 5,
-  // eease: "linear",
+  duration: 5,
+  ease: "linear",
   // duration: 0.2,
-  ease: [0.32, 0.72, 0, 1],
+  // ease: [0.32, 0.72, 0, 1],
 };
 
 export default function Email() {
-  let [id, setId] = useState(Math.max(...a) + 1);
+  let [id, setId] = useState(a.length);
   const [messages, setMessages] = useState(a);
-  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  const [selectedMessages, setSelectedMessages] = useState<number[]>([
+    4, 5, 6, 7, 8,
+  ]);
 
   function addMessage() {
     setMessages((messages) => [id, ...messages]);
@@ -41,6 +43,8 @@ export default function Email() {
     );
     setSelectedMessages([]);
   }
+
+  // console.log(messages, id);
 
   return (
     <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-gray-200">
@@ -67,30 +71,77 @@ export default function Email() {
           <AnimatePresence initial={false}>
             {messages.map((mid) => (
               <motion.li
-                initial={{ height: 0 }}
-                animate={{ height: "auto", y: 0 }}
+                initial={
+                  {
+                    // height: 0
+                  }
+                }
+                animate={
+                  {
+                    // height: "auto"
+                  }
+                }
+                // layout
+                // animate={{ y: 0 }}
                 exit={{
-                  height: 0,
-                  zIndex: groupSelectedMessages(messages, selectedMessages)
-                    .reverse()
-                    .findIndex((group) => group.includes(mid)),
-
-                  y:
-                    -48 *
-                    getNumberOfSelectedMessagesAfter(
-                      messages,
-                      selectedMessages,
-                      mid,
-                    ),
+                  // height: 0,
+                  // zIndex: groupSelectedMessages(messages, selectedMessages)
+                  //   .reverse()
+                  //   .findIndex((group) => group.includes(mid)),
+                  y: -49 * 5,
+                  // y:
+                  //   -48 *
+                  //   getNumberOfSelectedMessagesAfter(
+                  //     messages,
+                  //     selectedMessages,
+                  //     mid,
+                  //   ),
                 }}
-                transition={transition}
+                // transition={transition}
+                transition={{
+                  type: "spring",
+                  bounce: 0.75,
+                  duration: 5,
+                }}
                 key={mid}
                 data-id={mid}
                 data-selected={selectedMessages.includes(mid) || null}
                 className={`oopacity-75 relative z-[1000] flex flex-col justify-end bg-gray-600`}
               >
-                <div>
-                  <button
+                <motion.div
+                  // exit={{
+                  //   y: `-${
+                  //     100 *
+                  //     getNumberOfSelectedMessagesAfter(
+                  //       messages,
+                  //       selectedMessages,
+                  //       mid,
+                  //     )
+                  //   }%`,
+                  // }}
+                  transition={transition}
+                >
+                  <motion.button
+                    transition={transition}
+                    exit={
+                      {
+                        // y:
+                        //   -48 *
+                        //   getNumberOfSelectedMessagesAfter(
+                        //     messages,
+                        //     selectedMessages,
+                        //     mid,
+                        //   ),
+                        // y: `-${
+                        //   100 *
+                        //   getNumberOfSelectedMessagesAfter(
+                        //     messages,
+                        //     selectedMessages,
+                        //     mid,
+                        //   )
+                        // }%`,
+                      }
+                    }
                     onClick={() => toggleMessage(mid)}
                     className={`${
                       selectedMessages.includes(mid)
@@ -126,8 +177,8 @@ export default function Email() {
                     >
                       Todo {mid}
                     </p>
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               </motion.li>
             ))}
           </AnimatePresence>
@@ -254,6 +305,6 @@ function groupSelectedMessages(messages: number[], selectedMessages: number[]) {
 
 function range(number: number) {
   return Array.apply(null, Array(number)).map(function (_, i) {
-    return i + 1;
+    return i;
   });
 }
