@@ -5,8 +5,8 @@ import { AnimatePresence, Transition, motion } from "framer-motion";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 
-let a = [...Array(20).keys()].reverse();
-let b = [...Array(19).keys()].reverse();
+let a = range(20).reverse();
+let b = range(19).reverse();
 
 const transition: Transition = {
   eease: "linear",
@@ -168,7 +168,11 @@ export default function Email() {
   );
 }
 
-function getNumberOfSelectedMessagesAfter(messages, selectedMessages, id) {
+function getNumberOfSelectedMessagesAfter(
+  messages: number[],
+  selectedMessages: number[],
+  id: number,
+) {
   const startIndex = messages.indexOf(id);
 
   if (startIndex === -1 || !selectedMessages.includes(id)) {
@@ -188,7 +192,11 @@ function getNumberOfSelectedMessagesAfter(messages, selectedMessages, id) {
   return consecutiveCount;
 }
 
-function getNumberOfSelectedMessagesBefore(messages, selectedMessages, id) {
+function getNumberOfSelectedMessagesBefore(
+  messages: number[],
+  selectedMessages: number[],
+  id: number,
+) {
   const endIndex = messages.indexOf(id);
 
   if (endIndex === -1 || !selectedMessages.includes(id)) {
@@ -208,7 +216,7 @@ function getNumberOfSelectedMessagesBefore(messages, selectedMessages, id) {
   return consecutiveCount;
 }
 
-function groupSelectedMessages(messages, selectedMessages) {
+function groupSelectedMessages(messages: number[], selectedMessages: number[]) {
   const messageGroups = [];
   let currentGroup = [];
 
@@ -274,3 +282,9 @@ function groupSelectedMessages(messages, selectedMessages) {
 // ```
 
 // returns 0, when it should return 3, since the IDs 5, 4 and 3 follow 6 in the original array, and they're all in selectedMessages
+
+function range(number: number) {
+  return Array.apply(null, Array(number)).map(function (_, i) {
+    return i;
+  });
+}

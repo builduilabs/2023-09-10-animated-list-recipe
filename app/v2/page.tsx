@@ -5,8 +5,8 @@ import { AnimatePresence, Transition, motion } from "framer-motion";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 
-let a = [...Array(20).keys()].reverse();
-let b = [...Array(19).keys()].reverse();
+let a = range(20).reverse();
+let b = range(19).reverse();
 
 const transition: Transition = {
   // ease: "linear",
@@ -17,7 +17,7 @@ const transition: Transition = {
 export default function Email() {
   let [id, setId] = useState(a.length);
   const [messages, setMessages] = useState(a);
-  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  const [selectedMessages, setSelectedMessages] = useState<number[]>(b);
 
   function addMessage() {
     setMessages((messages) => [id, ...messages]);
@@ -187,4 +187,10 @@ function groupSelectedMessages(messages: number[], selectedMessages: number[]) {
   }
 
   return messageGroups;
+}
+
+function range(number: number) {
+  return Array.apply(null, Array(number)).map(function (_, i) {
+    return i;
+  });
 }
