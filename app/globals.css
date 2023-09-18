@@ -1,15 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* .group[data-selected="true"]:last-child {
-  background-color: white;
-} */
-
-/* [data-selected] ~ [data-selected] button {
-  @apply rounded-t-none;
-}
-
-[data-selected]:has(+ :not([data-selected])) button {
-  @apply rounded-b;
-} */

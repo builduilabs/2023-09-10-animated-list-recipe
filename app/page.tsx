@@ -1,21 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, Transition, motion } from "framer-motion";
-import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
+import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+import { todos } from "@/lib/todos";
 
 let a = range(5).reverse();
 let b = range(14).reverse();
-
-const transition: Transition = {
-  // type: "spring",
-  // bounce: 0.75,
-  // duration: 5,
-  // eease: "linear",
-  // duration: 0.2,
-  ease: [0.32, 0.72, 0, 1],
-};
 
 export default function Email() {
   let [id, setId] = useState(Math.max(...a) + 1);
@@ -44,8 +36,8 @@ export default function Email() {
 
   return (
     <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-gray-200">
-      <div className="flex h-full w-full max-w-md flex-1 flex-col bg-gray-600 py-2 shadow-xl">
-        <div className="border-b border-gray-500/40 px-5">
+      <div className="relative flex h-full w-full max-w-md flex-1 flex-col rounded border border-white/10 bg-gray-600 shadow-xl">
+        <div className="border-b border-gray-500/80 px-5">
           <div className="flex justify-between py-2 text-right">
             <button
               onClick={addMessage}
@@ -63,75 +55,79 @@ export default function Email() {
           </div>
         </div>
 
-        <ul className="relative z-20 m-3 overflow-y-scroll">
-          <AnimatePresence initial={false}>
-            {messages.map((mid) => (
-              <motion.li
-                initial={{ height: 0 }}
-                animate={{ height: "auto", y: 0 }}
-                exit={{
-                  height: 0,
-                  zIndex: groupSelectedMessages(messages, selectedMessages)
-                    .reverse()
-                    .findIndex((group) => group.includes(mid)),
-
-                  y:
-                    -48 *
-                    getNumberOfSelectedMessagesAfter(
-                      messages,
-                      selectedMessages,
-                      mid,
-                    ),
-                }}
-                transition={transition}
-                key={mid}
-                data-id={mid}
-                data-selected={selectedMessages.includes(mid) || null}
-                className={`oopacity-75 relative z-[1000] flex flex-col justify-end bg-gray-600`}
-              >
-                <div>
-                  <button
-                    onClick={() => toggleMessage(mid)}
-                    className={`${
-                      selectedMessages.includes(mid)
-                        ? "bg-blue-500"
-                        : "hover:bg-gray-500/50"
-                    }
-                    ${
+        <div className="relative z-20 overflow-y-scroll">
+          <div className="m-3">
+            <AnimatePresence initial={false}>
+              {messages.map((mid) => (
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: "auto", y: 0 }}
+                  exit={{
+                    height: 0,
+                    zIndex: groupSelectedMessages(messages, selectedMessages)
+                      .reverse()
+                      .findIndex((group) => group.includes(mid)),
+                    y:
+                      -48 *
                       getNumberOfSelectedMessagesAfter(
                         messages,
                         selectedMessages,
                         mid,
-                      ) === 0
-                        ? "rounded-b border-transparent"
-                        : "border-white/10"
-                    }
-                    ${
-                      getNumberOfSelectedMessagesBefore(
-                        messages,
-                        selectedMessages,
-                        mid,
-                      ) === 0
-                        ? "rounded-t"
-                        : ""
-                    }
-                    block w-full cursor-pointer truncate border-b-[1px] px-8 py-4 text-left`}
-                  >
-                    <p
+                      ),
+                  }}
+                  transition={{
+                    ease: [0.32, 0.72, 0, 1],
+                    // duration: 10,
+                  }}
+                  key={mid}
+                  className="relative z-[1000] flex flex-col justify-end bg-gray-600"
+                >
+                  <div>
+                    <button
+                      onClick={() => toggleMessage(mid)}
                       className={`${
                         selectedMessages.includes(mid)
-                          ? "text-white"
-                          : "text-white"
-                      } truncate text-xs text-gray-100`}
+                          ? "bg-blue-500"
+                          : "hover:bg-gray-500/50"
+                      }
+                      ${
+                        getNumberOfSelectedMessagesAfter(
+                          messages,
+                          selectedMessages,
+                          mid,
+                        ) === 0
+                          ? "rounded-b border-transparent"
+                          : "border-white/10"
+                      }
+                      ${
+                        getNumberOfSelectedMessagesBefore(
+                          messages,
+                          selectedMessages,
+                          mid,
+                        ) === 0
+                          ? "rounded-t"
+                          : ""
+                      }
+                      block w-full cursor-pointer truncate border-b-[1px] px-8 py-4 text-left`}
                     >
-                      Todo {mid}
-                    </p>
-                  </button>
-                </div>
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        </ul>
+                      <p
+                        className={`${
+                          selectedMessages.includes(mid)
+                            ? "text-white"
+                            : "text-white"
+                        } truncate text-sm text-gray-100`}
+                      >
+                        {todos[mid]}
+                      </p>
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          <div className="pointer-events-none absolute inset-0 z-[1000] border-[12px] border-gray-600"></div>
+        </div>
       </div>
     </div>
   );
