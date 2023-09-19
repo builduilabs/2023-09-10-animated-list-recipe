@@ -14,7 +14,7 @@ type Todo = (typeof initialTodos)[number];
 
 export default function Email() {
   let [id, setId] = useState(Math.max(...initialTodos.map((t) => t.id)) + 1);
-  let [duration, setDuration] = useState(5);
+  let [duration, setDuration] = useState(0.3);
   const [todos, setTodos] = useState(
     range(10).map((index) => ({ id: index, text: seeds[index] })),
   );
