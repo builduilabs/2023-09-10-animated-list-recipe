@@ -27,14 +27,14 @@ export default function Email() {
 
   function toggleTodo(todo: Todo) {
     if (selectedTodos.includes(todo)) {
-      setSelectedTodos((todos) => todos.filter((todo) => todo !== todo));
+      setSelectedTodos((todos) => todos.filter((t) => t !== todo));
     } else {
       setSelectedTodos((todos) => [todo, ...todos]);
     }
   }
 
   function archiveSelectedTodos() {
-    setTodos((todos) => todos.filter((todo) => !selectedTodos.includes(todo)));
+    setTodos((todos) => todos.filter((t) => !selectedTodos.includes(t)));
     setSelectedTodos([]);
   }
 
@@ -68,7 +68,14 @@ export default function Email() {
             </button>
             <button
               onClick={archiveSelectedTodos}
-              className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-400 hover:text-gray-300 active:text-gray-200"
+              className={`
+              ${
+                selectedTodos.length === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
+                -mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-400 hover:text-gray-300 active:text-gray-200
+              `}
             >
               <ArchiveBoxIcon className="h-5 w-5" />
               Archive
