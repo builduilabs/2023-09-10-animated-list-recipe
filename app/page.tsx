@@ -93,7 +93,7 @@ export default function Email() {
                   exit={{
                     height: 0,
                     y:
-                      -48 * countSelectedTodosAfter(todos, selectedTodos, todo),
+                      -53 * countSelectedTodosAfter(todos, selectedTodos, todo),
                     zIndex: groupSelectedTodos(todos, selectedTodos)
                       .reverse()
                       .findIndex((group) => group.includes(todo)),
