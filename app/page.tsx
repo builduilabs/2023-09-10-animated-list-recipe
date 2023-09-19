@@ -14,7 +14,7 @@ type Todo = (typeof initialTodos)[number];
 
 export default function Email() {
   let [id, setId] = useState(Math.max(...initialTodos.map((t) => t.id)) + 1);
-  let [duration, setDuration] = useState(0.3);
+  let [duration, setDuration] = useState(5);
   const [todos, setTodos] = useState(
     range(10).map((index) => ({ id: index, text: seeds[index] })),
   );
@@ -92,9 +92,8 @@ export default function Email() {
                   animate={{ height: "auto" }}
                   exit={{
                     height: 0,
-                    y: `${
-                      -100 * countSelectedTodosAfter(todos, selectedTodos, todo)
-                    }%`,
+                    y:
+                      -48 * countSelectedTodosAfter(todos, selectedTodos, todo),
                     zIndex: groupSelectedTodos(todos, selectedTodos)
                       .reverse()
                       .findIndex((group) => group.includes(todo)),
