@@ -4,49 +4,70 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { todos } from "@/lib/todos";
+import { seeds } from "@/lib/todos";
 
-let a = range(5).reverse();
-let b = range(14).reverse();
+let initialTodos = range(10).map((index) => ({
+  id: index,
+  text: seeds[index],
+}));
+type Todo = (typeof initialTodos)[number];
 
 export default function Email() {
-  let [id, setId] = useState(Math.max(...a) + 1);
-  const [messages, setMessages] = useState(a);
-  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  let [id, setId] = useState(Math.max(...initialTodos.map((t) => t.id)) + 1);
+  let [duration, setDuration] = useState(0.3);
+  const [todos, setTodos] = useState(
+    range(10).map((index) => ({ id: index, text: seeds[index] })),
+  );
+  const [selectedTodos, setSelectedTodos] = useState<Todo[]>([]);
 
-  function addMessage() {
-    setMessages((messages) => [id, ...messages]);
+  function addTodo() {
+    setTodos((todos) => [{ id, text: seeds[id] }, ...todos]);
     setId((id) => id + 1);
   }
 
-  function toggleMessage(mid: number) {
-    if (selectedMessages.includes(mid)) {
-      setSelectedMessages((messages) => messages.filter((id) => id !== mid));
+  function toggleTodo(todo: Todo) {
+    if (selectedTodos.includes(todo)) {
+      setSelectedTodos((todos) => todos.filter((todo) => todo !== todo));
     } else {
-      setSelectedMessages((messages) => [mid, ...messages]);
+      setSelectedTodos((todos) => [todo, ...todos]);
     }
   }
 
-  function archiveSelectedMessages() {
-    setMessages((messages) =>
-      messages.filter((id) => !selectedMessages.includes(id)),
-    );
-    setSelectedMessages([]);
+  function archiveSelectedTodos() {
+    setTodos((todos) => todos.filter((todo) => !selectedTodos.includes(todo)));
+    setSelectedTodos([]);
   }
 
   return (
     <div className="flex h-screen flex-col items-center justify-center overscroll-y-contain px-6 py-8 text-gray-200">
+      <div className="absolute right-0 top-0 hidden space-x-4 px-4 py-2 text-sm text-gray-500 sm:block">
+        <button
+          className={`${duration === 3 ? "text-white" : "hover:text-gray-300"}`}
+          onClick={() => setDuration(3)}
+        >
+          0.1x
+        </button>
+        <button
+          className={`${
+            duration === 0.3 ? "text-white" : "hover:text-gray-300"
+          }`}
+          onClick={() => setDuration(0.3)}
+        >
+          1x
+        </button>
+      </div>
+
       <div className="relative flex h-full w-full max-w-md flex-1 flex-col rounded border border-gray-500 bg-gray-600 shadow-xl">
         <div className="border-b border-gray-500/80 px-5">
           <div className="flex justify-between py-2 text-right">
             <button
-              onClick={addMessage}
+              onClick={addTodo}
               className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-400 hover:text-gray-300 active:text-gray-200"
             >
               <PlusIcon className="h-6 w-6" />
             </button>
             <button
-              onClick={archiveSelectedMessages}
+              onClick={archiveSelectedTodos}
               className="-mx-2 flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-400 hover:text-gray-300 active:text-gray-200"
             >
               <ArchiveBoxIcon className="h-5 w-5" />
@@ -58,65 +79,47 @@ export default function Email() {
         <div className="relative z-20 overflow-y-scroll">
           <div className="m-3">
             <AnimatePresence initial={false}>
-              {messages.map((mid) => (
+              {todos.map((todo) => (
                 <motion.div
                   initial={{ height: 0 }}
-                  animate={{ height: "auto", y: 0 }}
+                  animate={{ height: "auto" }}
                   exit={{
                     height: 0,
-                    zIndex: groupSelectedMessages(messages, selectedMessages)
+                    y: `${
+                      -100 * countSelectedTodosAfter(todos, selectedTodos, todo)
+                    }%`,
+                    zIndex: groupSelectedTodos(todos, selectedTodos)
                       .reverse()
-                      .findIndex((group) => group.includes(mid)),
-                    y:
-                      -48 *
-                      getNumberOfSelectedMessagesAfter(
-                        messages,
-                        selectedMessages,
-                        mid,
-                      ),
+                      .findIndex((group) => group.includes(todo)),
                   }}
-                  transition={{ ease: [0.32, 0.72, 0, 1] }}
-                  key={mid}
+                  transition={{ ease: [0.32, 0.72, 0, 1], duration }}
+                  key={todo.id}
                   className="relative z-[1000] flex flex-col justify-end bg-gray-600"
                 >
                   <div>
                     <button
-                      onClick={() => toggleMessage(mid)}
+                      onClick={() => toggleTodo(todo)}
                       className={`${
-                        selectedMessages.includes(mid)
+                        selectedTodos.includes(todo)
                           ? "bg-blue-500"
                           : "hover:bg-gray-500/50"
                       }
                       ${
-                        getNumberOfSelectedMessagesAfter(
-                          messages,
-                          selectedMessages,
-                          mid,
-                        ) === 0
+                        countSelectedTodosAfter(todos, selectedTodos, todo) ===
+                        0
                           ? "rounded-b border-transparent"
                           : "border-white/10"
                       }
                       ${
-                        getNumberOfSelectedMessagesBefore(
-                          messages,
-                          selectedMessages,
-                          mid,
-                        ) === 0
+                        countSelectedTodosBefore(todos, selectedTodos, todo) ===
+                        0
                           ? "rounded-t"
                           : ""
                       }
                       block w-full cursor-pointer truncate border-b-[1px] px-8 py-4 text-left`}
                       style={{ WebkitTapHighlightColor: "transparent" }}
                     >
-                      <p
-                        className={`${
-                          selectedMessages.includes(mid)
-                            ? "text-white"
-                            : "text-white"
-                        } truncate text-sm text-gray-100`}
-                      >
-                        {todos[mid]}
-                      </p>
+                      <p className="truncate text-sm text-white">{todo.text}</p>
                     </button>
                   </div>
                 </motion.div>
@@ -131,21 +134,21 @@ export default function Email() {
   );
 }
 
-function getNumberOfSelectedMessagesAfter(
-  messages: number[],
-  selectedMessages: number[],
-  id: number,
+function countSelectedTodosAfter(
+  todos: Todo[],
+  selectedTodos: Todo[],
+  todo: Todo,
 ) {
-  const startIndex = messages.indexOf(id);
+  const startIndex = todos.indexOf(todo);
 
-  if (startIndex === -1 || !selectedMessages.includes(id)) {
+  if (startIndex === -1 || !selectedTodos.includes(todo)) {
     return 0;
   }
 
   let consecutiveCount = 0;
 
-  for (let i = startIndex + 1; i < messages.length; i++) {
-    if (selectedMessages.includes(messages[i])) {
+  for (let i = startIndex + 1; i < todos.length; i++) {
+    if (selectedTodos.includes(todos[i])) {
       consecutiveCount++;
     } else {
       break;
@@ -155,21 +158,21 @@ function getNumberOfSelectedMessagesAfter(
   return consecutiveCount;
 }
 
-function getNumberOfSelectedMessagesBefore(
-  messages: number[],
-  selectedMessages: number[],
-  id: number,
+function countSelectedTodosBefore(
+  todos: Todo[],
+  selectedTodos: Todo[],
+  todo: Todo,
 ) {
-  const endIndex = messages.indexOf(id);
+  const endIndex = todos.indexOf(todo);
 
-  if (endIndex === -1 || !selectedMessages.includes(id)) {
+  if (endIndex === -1 || !selectedTodos.includes(todo)) {
     return 0;
   }
 
   let consecutiveCount = 0;
 
   for (let i = endIndex - 1; i >= 0; i--) {
-    if (selectedMessages.includes(messages[i])) {
+    if (selectedTodos.includes(todos[i])) {
       consecutiveCount++;
     } else {
       break;
@@ -179,29 +182,29 @@ function getNumberOfSelectedMessagesBefore(
   return consecutiveCount;
 }
 
-function groupSelectedMessages(messages: number[], selectedMessages: number[]) {
-  const messageGroups = [];
+function groupSelectedTodos(todos: Todo[], selectedTodos: Todo[]) {
+  const todoGroups = [];
   let currentGroup = [];
 
-  for (let i = 0; i < messages.length; i++) {
-    const messageId = messages[i];
+  for (let i = 0; i < todos.length; i++) {
+    const todo = todos[i];
 
-    if (selectedMessages.includes(messageId)) {
-      currentGroup.push(messageId);
+    if (selectedTodos.includes(todo)) {
+      currentGroup.push(todo);
     } else if (currentGroup.length > 0) {
       // If we encounter a non-selected message and there is an active group,
       // push the current group to the result and reset it.
-      messageGroups.push(currentGroup);
+      todoGroups.push(currentGroup);
       currentGroup = [];
     }
   }
 
   // Check if there's a group remaining after the loop.
   if (currentGroup.length > 0) {
-    messageGroups.push(currentGroup);
+    todoGroups.push(currentGroup);
   }
 
-  return messageGroups;
+  return todoGroups;
 }
 
 function range(number: number) {

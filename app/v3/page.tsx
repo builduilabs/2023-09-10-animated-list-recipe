@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 
 export default function Page() {
   let x = range(20);
@@ -10,10 +10,12 @@ export default function Page() {
 
   return (
     <motion.div
-      animate={{
-        "--foo": on ? "300px" : "0px",
-        // "--foo": on ? "100%" : "0%",
-      }}
+      // animate={
+      //   {
+      //     "--foo": on ? "300px" : "0px",
+      //     // "--foo": on ? "100%" : "0%",
+      //   } as CSSProperties
+      // }
       transition={{ type: "spring", bounce: 0.75, duration: 4 }}
       className="relative mx-auto mt-12 max-w-md"
     >
