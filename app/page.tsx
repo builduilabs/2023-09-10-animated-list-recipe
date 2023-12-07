@@ -122,7 +122,7 @@ export default function Email() {
                           ? "rounded-t"
                           : ""
                       }
-                      block w-full cursor-pointer truncate border-b-[1px] px-8 py-4 text-left`}
+                      block w-full cursor-pointer truncate border-b-[1px] px-4 py-4 text-left md:px-8`}
                       style={{ WebkitTapHighlightColor: "transparent" }}
                     >
                       <p className="truncate text-sm text-white">{todo.text}</p>
